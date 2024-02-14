@@ -8,7 +8,8 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
-# 1. It has been determined that the chance of becoming infected by a disease after contact with a particular parasite is 15%. If 50 individuals were in contact with the parasite:
+# 1
+## It has been determined that the chance of becoming infected by a disease after contact with a particular parasite is 15%. If 50 individuals were in contact with the parasite...
 
 For all future uses of the word Probability in my document's mathematical descriptions, I will use `Pr()`. For this question, I will reference all relevant events as `Infected` or `Not Infected` for clarity. As defined in the Diez, Cetinkaya-Rundel, and Barr textbook:
 
@@ -50,7 +51,8 @@ Finally, although the question does not explicitly state this, I believe it must
 
 With these definitions, we can now move forward answering the question.
 
-## 1a) What is the chance that no-one got infected?
+## 1a
+### What is the chance that no-one got infected?
 
 The multiplication rule states further, as defined in Diez et al, that "if there are *k* events $A_1$, ..., $A_k$ from *k* independent processes, then the probability they all occur is:
 
@@ -73,7 +75,8 @@ cat("Pr(Zero Infections) =", p_nobody_infected)
 
 We can see that the chance nobody got infected is incredibly low with a value of `r toString(round(p_nobody_infected, 8))`.
 
-## 1b) What is the chance that at most 10 people got infected?
+## 1b
+### What is the chance that at most 10 people got infected?
 
 In the case that we have a fixed number of trials (here, 50 individuals that may or may not get infected after exposure to the parasite) and want to determine the probability that at most 10 are infected, we might want to use the *binomial distribution*.
 
@@ -138,7 +141,8 @@ cat("Probability of at most 10 infections is", p_at_most_10)
 
 Thus, we can see that the probability of at most 10 infections is `r toString(round(p_at_most_10,8))`.
 
-## 1c) What is the chance more than 5 people got infected?
+## 1c
+### What is the chance more than 5 people got infected?
 
 The same justifications for using the binomial distribution described in `1b` can be used here.
 
@@ -156,7 +160,7 @@ This can be accomplished using the same `R` code as above:
 # Use n defined in first part of question, n  = 50
 # Use p_infected defined in second part of question, p_infected = 0.15
 
-# Use vectorized apply on a vector with values 0 through 10 and:
+# Use vectorized apply on a vector with values 6 through 50 and:
 # define function taking each number iterated from the vector (k)
 # use function dbinom()
 # describe value of k, or number of infections with 50 trials
@@ -168,11 +172,13 @@ p_more_than_5 <- sum(probabilities)
 
 # Display the values
 cat("Probability of more than 5 infections is", p_more_than_5)
+
 ```
 
 Thus, we can see that the probability of more than 5 infections is `r p_more_than_5`.
 
-## 1d) How many people got infected if the calculated probability of this event was 3.3% (rounded?)
+## 1d
+### How many people got infected if the calculated probability of this event was 3.3% (rounded?)
 
 This is asking us to go backwards in the binomial distribution calculation. It is effectively asking us what number of infections would be required to achieve a probability of 3.3%. In other words:
 
@@ -180,7 +186,36 @@ $0.033 = Pr(x)$
 
 Where $x$ represents the number of infections needed to achieve this probability.
 
-We should be able to use the `inverse cumulative density function` or `inverse CDF` which calculates the value of a random variable for a specific probability.
+One way to determine this is to calculate the entire distribution and observe what number of infections gets us closest to the the desired probability of 3.3%.
+
+```{r}
+# Use n defined in first part of question, n  = 50
+# Use p_infected defined in second part of question, p_infected = 0.15
+# Define target probability
+target_p <- 0.033
+
+# Use vectorized apply on a vector with values 0 through 50 and:
+# define function taking each number iterated from the vector (k)
+# use function dbinom()
+# describe value of k, or number of infections with 50 trials
+# and a probability of p_infected
+# Round to 3 decimals for matching target value
+probabilities <- round((sapply(0:50, function(k) dbinom(k, size=n, prob=p_infected))), 3)
+
+# Display probabilities
+cat(probabilities)
+
+# Iterate through the probability vector to find value equal to 3.3
+for (i in 1:length(probabilities)) {
+  # use i-1 because R is one indexed
+  if (probabilities[i] == target_p) {
+    cat("\nNumber of infected individuals for a probability of 3.3%:", i-1, "\n")
+  }
+}
+```
+### A note about qbinom (for my personal reference; not part of my submission)
+
+I had initially thought we could use the `inverse cumulative density function` or `inverse CDF` `qbiom` function.
 
 Using `R`, we can do the following:
 
@@ -188,27 +223,34 @@ Using `R`, we can do the following:
 # Use n defined in first part of question, n  = 50
 # Use p_infected defined in second part of question, p_infected = 0.15
 
-# Define the probability we are trying to find the value of k for:
+# Define the probability we are trying to find the value of k that gives us
+# probabilities below 0.033. In other words, the number of infections that
+# gets close to a threshold of 0.033 probability but no further:
 calculated_probability = 0.033
 
 # Use qbinom for calculating the value of k
 number_infected = qbinom(calculated_probability, size=n, prob=p_infected)
 
 # Display the value
-cat("Number of infections to achieve Pr=0.033:", number_infected)
-
+cat("Number of infections to before surpassing Pr=0.033:", number_infected, "\n")
 
 # We can check the accuracy of this computation by plugging in
 # this value into the dbinom function:
 p = dbinom(number_infected, size=n, prob=p_infected)
 
 # Display the values
-cat("Calculated Probability from qbinom value: ", p)
+cat("Calculated Probability from qbinom value of 3 individuals: ", p, "\n")
+
+# Calculate value of number_infected + 1 to demonstrate surpassing the threshold
+p_past_threshold = dbinom(number_infected+1, size=n, prob=p_infected)
+cat("Past Threshold value of", number_infected+1,"infections:", p_past_threshold, "\n")
 ```
 
-#TODO: In office hours, check out why this doesn't line up exactly, must have dones something wrong.
+After searching online some more, I learned that the qbinom function is not directly a number of successes but rather gives a value of a random variable for which a specified proportion of the distribution is below that value! In this case, 3 makes sense because the next value, 4 infections, surpasses the threshold of 3.3%!
 
-# 2. A rare genetic disease with late onset is discovered. Although only one in a million people are carriers for the variant, you consider getting screened. You are told that the genetic test is extremely accurate: it is 100% sensitive (i.e., it is always correct if you have the disease) and 99.99% specific (i.e., it gives a false positive result only 0.01% of the time). Having recently learned Bayes’ theorem, you decide not to take the test after all. Why?
+
+# 2
+## A rare genetic disease with late onset is discovered. Although only one in a million people are carriers for the variant, you consider getting screened. You are told that the genetic test is extremely accurate: it is 100% sensitive (i.e., it is always correct if you have the disease) and 99.99% specific (i.e., it gives a false positive result only 0.01% of the time). Having recently learned Bayes’ theorem, you decide not to take the test after all. Why?
 
 To answer this question, it would first be  helpful to define what the terms sensitivity and specificity mean. Then, a discussion of positive and negative predictive value would be helpful.
 
@@ -248,9 +290,59 @@ The negative predictive value describes a probability of *not* having the diseas
 
 $Pr(No\ Disease \mid Negative\ Test)$
 
-## Why Not Take the Test?
+## Why Not Take the Test? Using Bayes' Rule
 
-To investigate why it would not be helpful to take the test, we should describe the positive and negative predictive values specifically in the context of an assumed prevalence of 0.1% in the population.
+To investigate why it would not be helpful to take the test, we should describe the positive and negative predictive values specifically in the context of an assumed prevalence of 1 in a million in the population. We want to know whether or not we have the disease given a positive test.
+
+Bayes' Theorm offers a way for determining whether or not such a test is useful. It is formulated in this context as:
+
+$$
+Pr(Infected \mid Positive)=\frac {Pr(Infected) \times Pr(Positive \mid Infection)}{Pr(Positive)}
+$$
+The probability of being positive can be deconstructed as:
+
+$$
+Pr(Positive) = Pr(Infected) \times Pr(Positive \mid Infection) + Pr(Not\ Infected) \times
+Pr(Positive \mid Not\ Infected)
+$$
+Putting this together, we get:
+
+$$
+Pr(Infected \mid Positive)=\frac {Pr(Infected) \times Pr(Positive \mid Infection)}
+{Pr(Infected) \times Pr(Positive \mid Infection) + Pr(Not\ Infected) \times Pr(Positive \mid Not\ Infected)}
+$$ 
+
+Each variable is:
+
+- $Pr(Infected) = 0.000001$
+Or 1 in 1 million probability
+
+- $Pr(Positive \mid Infection) = 1$
+There are no false negatives
+
+- $Pr(Not\ Infected) = 0.999999$
+Or 999,999 in 1 million probability
+
+- $Pr(Positive \mid Not\ Infected) = 0.0001$
+Rate of false positives
+
+Let's use `R` to calculate the probability
+
+```{r}
+p_infected <- 1/1000000
+p_positive_given_infected <- 1 
+p_not_infected <- 999999/1000000
+p_positive_given_not_infected <- 0.01/100
+
+# Plug in the values
+p_infected_given_positive = (p_infected*p_positive_given_infected) / 
+  ((p_infected*p_positive_given_infected) + (p_not_infected*p_positive_given_not_infected))
+
+cat("Probability of Being Infected Given Positive Test:", p_infected_given_positive)
+```
+Clearly, this test is not very useful! There is a less than 1% chance of testing positive even if you are infected!
+
+## Why Not Take the Test? Using Diagnostic Tables (For myself, not for submission)
 
 From lecture, we can define a table like so:
 
@@ -270,18 +362,18 @@ This represents the confusion matrix of true positives/negatives as well as fals
 We can now substitute in each probability given by the specificity and sensitivity.
 
 - $Pr(P \mid I)=1$
-- $Pr(P \mid !I)=0.01$
+- $Pr(P \mid !I)=0.000001$
 - $Pr(!P \mid I)=0$
-- $Pr(!P \mid !I)=0.99$
+- $Pr(!P \mid !I)=0.99999$
 
-If we calculate each of these values using a sample of 100 thousand individuals with a prevalence of 0.1%, we expect 100 individuals to truly have the disease.
+If we calculate each of these values using a sample of 1 million individuals with a prevalence of 0.0001%, we expect 100 individuals to truly have the disease.
 
 Using this expected value, we can obtain the following table:
 
-|   | +   | -     |
-|---|-----|-------|
-| + | 100 | 100   |
-| - | 0   | 99900 |
+|   | +    |   -    |
+|---|------|--------|
+| + | 100  | 100    |
+| - | 0    | 999900 |
 
 Now, we can calculate the positive and negative predictive values:
 
@@ -292,7 +384,7 @@ positive_predictive_value <- (100 / (100 + 100)) * 100
 
 # Calculate negative predictive value and multiply by 100 to get
 #percentage
-negative_predictive_value <- (0 / (0 + 99900)) * 100
+negative_predictive_value <- (0 / (0 + 999900)) * 100
 
 cat("Positive Predictive Value: ", positive_predictive_value)
 cat("Negative Predictive Value: ", negative_predictive_value)
@@ -300,9 +392,9 @@ cat("Negative Predictive Value: ", negative_predictive_value)
 
 We can see here that the test only has 50% positive predictive value and a dismal 0% (!) negative predictive value! In other words, it is completely useless at determining at predicting that you *do not* have the disease. Even if the test result is negative, the probability of the condition being absent is essentially 0!
 
-#TODO: This can't be right, need to check in at office hours + how to demonstrate this with Bayes' rule?
+# 3
 
-# 3. Suppose a new drug (B) improves upon an older one (A) by increasing the probability of self-reported relief from gastric distress from 40% to 65%. Suppose drug A is given to 10 randomly-sampled patients and drug B is given to a second 10. Let YA and YB be the number out of 10 patients that will experience relief in each group. Plot the probability distributions for YA and YB.
+## Suppose a new drug (B) improves upon an older one (A) by increasing the probability of self-reported relief from gastric distress from 40% to 65%. Suppose drug A is given to 10 randomly-sampled patients and drug B is given to a second 10. Let YA and YB be the number out of 10 patients that will experience relief in each group. Plot the probability distributions for YA and YB.
 
 The binomial distribution is an applicable distribution for creating and then plotting the distributions of these drugs' effects.
 
@@ -322,7 +414,7 @@ Each trial can indeed be classified as a success (relief) or failure (no relief)
 
 From the question, it appears that there are no known additonal variables that change the probabilities of patient relief.
 
-## Determining the Distributions: R
+### Determining the Distributions: R
 
 We can use `R` and specifically call upon the `dbinom` function for this exercise:
 
@@ -378,24 +470,26 @@ barplot(
 legend("topright", legend=c("Drug B"), fill=c("red"))
 ```
 
-# 4. Consider the following histogram:
+# 4 Consider the following histogram:
 ```{r}
 knitr::include_graphics("C:/Users/jerem/OneDrive/Desktop/hw1_question4_histogram.jpg")
 ```
-## 4a. Which of the following is true? Choose one and explain briefly.
+## 4a
+### Which of the following is true? Choose one and explain briefly.
 i. The mean is larger than the median
 ii. The median is larger than the mean
 iii. The mean and median are about the same
 
 It is hard to definitively state which of these statements are true without the underlying data, but the shape of the distribution gives us a couple hints.
 
-First, it appears unlikely that the mean is larger than the median. The mean is less robust to outliers and skew in the data. We see that the distribution is taller on the left side for the smaller values relative to the larger side of values in this distribution. Thus, it is likely that the _median_ is a larger value in this distribution since it is less sensitive to skews in the data.
+Although we see that the distribution is taller on the left side for the smaller values relative to the larger side of values in this distribution, we learned in lecture that approximately normally distributed data have measures of center (mean and median) that are very nearly equal to one another! So the mean and median are *about the same*.
 
-## 4b. Is the standard deviation about 10, about 25, or about 50? Explain briefly.
+## 4b
+### Is the standard deviation about 10, about 25, or about 50? Explain briefly.
 
 This distribution looks approximately normal. Typically, approximately 99% of the data in a normal distribution is contained within 3 standard deviations, or approximately $3 \sigma$. A summary of this typical description is:
 - $Pr(\mu - 1 \sigma \leq X \leq \mu + 1 \sigma) \approx 68\%$
 - $Pr(\mu - 2 \sigma \leq X \leq \mu + 2 \sigma) \approx 95\%$
 - $Pr(\mu - 3 \sigma \leq X \leq \mu + 3 \sigma) \approx 99\%$
 
-Through visual inspection, it appears that nearly all the data is present within the range of 25 - 175. With a mean of 100, it the only appropriate value listed in the question is 25. Thus, $\sigma \approx 25$
+Through visual inspection, it appears that nearly all the data is present within the range of 25 - 175. With a mean of 100, the only appropriate value listed in the question is 25. Thus, $\sigma \approx 25$
