@@ -269,8 +269,8 @@ We can use `R` to first generate 100 numbers and then define upper and lower bou
 set.seed(10)
 
 # Generate random numbers from normal distribution with rnorm
-# n = 100, mean = 100, sd = 5
-random_normal_numbers <- rnorm(n = 100, mean = 100, sd = 5)
+# n = 100, mean = 100, sd = 10
+random_normal_numbers <- rnorm(n = 100, mean = 100, sd = 10)
 
 # Define upper and lower bounds using the provided SD of 10
 upper_bound <- 100 + 2*10
