@@ -15,7 +15,7 @@ A constant problem in statistics is that, while we would like to take a census o
 
 Remember, the population mean from our sample is intended to measure the mean of the larger population being studied. This measure is called a *point estimate*. However, because of randomness, our measures have some sort of *uncertainty* attached to them. The confidence interval is one way of measuring uncertainty because it offers a range of values that is likely to contain a population parameter with a specific value for confidence, often called *alpha*, or  $\alpha$. Critically, we talk about confidence and *not* probabilities in confidence intervals. The confidence interval either contains the parameter we're estimating, or it does not.
 
-This *significance level*, $alplha$, explicitly defines a threshold that is set before data collection for determining whether or not a *Null Hypothesis* is true. Specifically, the significance level corresponds to the area under the curve of a distribution that is precisley equal to alpha. Some textbooks call this region the *critical region* of the distribution.
+This *significance level*, $alplha$, explicitly defines a threshold that is set before data collection for determining whether or not a *Null Hypothesis* is true. Specifically, the significance level corresponds to the area under the curve of a distribution that is precisely equal to alpha. Some textbooks call this region the *critical region* of the distribution.
 
 A critical value is what defines the boundaries for that distribution's associated $\alpha$. This is what question 1 is asking us. If a calculated test statistic is beyond this value, the data can be considered too inconsistent with what one can expect if the null hypothesis is true.
 
